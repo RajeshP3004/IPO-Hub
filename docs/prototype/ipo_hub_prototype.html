@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPO Hub — Prototype</title>
+<style>
+:root{
+  --bg:#f6f7fb;--card:#fff;--text:#171923;--muted:#6b7280;
+  --border:#e6e8ef;--primary:#5b4bdb;--primary2:#4636c5;
+  --green:#16835b;--greenbg:#e9f8f1;--yellow:#9a6a00;--yellowbg:#fff6dc;
+  --red:#c23b3b;--shadow:0 10px 35px rgba(26,31,55,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+button,input{font:inherit}
+.app{max-width:1180px;margin:auto;padding:28px 20px 50px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:13px;background:var(--primary);color:white;display:grid;place-items:center;font-weight:800;font-size:19px}
+.brand h1{font-size:20px;margin:0}.brand p{font-size:12px;color:var(--muted);margin:2px 0 0}
+.profile{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#e9e6ff;display:grid;place-items:center;color:var(--primary);font-weight:700}
+.hero{background:linear-gradient(135deg,#17143d,#5b4bdb);color:#fff;border-radius:24px;padding:28px 30px;box-shadow:var(--shadow);margin-bottom:22px}
+.hero-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;opacity:.7;font-weight:700}
+.hero h2{font-size:28px;margin:8px 0 6px}.hero p{margin:0;color:#dcd9ff;font-size:14px}
+.badge{background:rgba(255,255,255,.14);padding:8px 11px;border-radius:999px;font-size:12px;white-space:nowrap}
+.stats{display:flex;gap:28px;margin-top:24px;flex-wrap:wrap}.stat span{display:block;font-size:11px;color:#c9c5f7}.stat strong{display:block;margin-top:3px;font-size:15px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:22px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font-size:17px}.sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+.ipoline{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.price{font-size:24px;font-weight:800}.small{font-size:12px;color:var(--muted)}
+.lotbox{display:flex;align-items:center;gap:12px;margin-top:20px}
+.stepper{display:flex;align-items:center;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stepper button{width:38px;height:38px;border:0;background:#fafaff;cursor:pointer;font-size:18px}
+.stepper span{width:45px;text-align:center;font-weight:700}
+.amount{margin-left:auto;text-align:right}.amount strong{display:block;font-size:17px}.amount span{font-size:11px;color:var(--muted)}
+.accounts{display:flex;flex-direction:column;gap:10px}
+.account{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:.15s}
+.account:hover{border-color:#c9c3ff;background:#fbfaff}.account.selected{border-color:#bdb5ff;background:#f7f5ff}
+.check{width:20px;height:20px;border:1.5px solid #c8cbd5;border-radius:6px;display:grid;place-items:center;flex:none}
+.account.selected .check{background:var(--primary);border-color:var(--primary);color:#fff}
+.check:after{content:"✓";font-size:13px;opacity:0}.selected .check:after{opacity:1}
+.person{width:38px;height:38px;border-radius:11px;background:#f0effb;display:grid;place-items:center;font-size:18px}
+.account-main{flex:1}.account-main strong{font-size:13px}.account-main span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.upi{font-size:11px;color:var(--muted);text-align:right}
+.footerbar{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.selected-count{font-size:13px;color:var(--muted)}.selected-count strong{color:var(--text)}
+.primary{border:0;background:var(--primary);color:#fff;padding:13px 18px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:0 5px 15px rgba(91,75,219,.22)}
+.primary:hover{background:var(--primary2)}.primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.status-list{display:flex;flex-direction:column;gap:11px}
+.status{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--border);border-radius:14px}
+.status .name{flex:1}.name strong{display:block;font-size:13px}.name span{font-size:11px;color:var(--muted)}
+.pill{font-size:11px;padding:6px 9px;border-radius:999px;font-weight:700}
+.pending{color:var(--yellow);background:var(--yellowbg)}.approved{color:var(--green);background:var(--greenbg)}
+.submitted{color:#4d55a4;background:#eef0ff}
+.notice{margin-top:18px;padding:13px 14px;background:#f8f8fc;border-radius:12px;font-size:12px;color:var(--muted);line-height:1.5}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(10,10,20,.48);align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal{max-width:460px;width:100%;background:white;border-radius:22px;padding:25px;box-shadow:0 25px 80px rgba(0,0,0,.2)}
+.modal h3{margin:0 0 7px}.modal p{font-size:13px;color:var(--muted);line-height:1.55}
+.confirm-box{background:#f7f6ff;padding:13px;border-radius:12px;margin:15px 0;font-size:13px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px}.secondary{border:1px solid var(--border);background:white;padding:11px 15px;border-radius:11px;cursor:pointer}
+.toast{position:fixed;right:20px;bottom:20px;background:#171923;color:white;padding:13px 16px;border-radius:12px;font-size:13px;display:none;box-shadow:var(--shadow)}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.hero-top{flex-direction:column}.profile{display:none}}
+
+.tabs .tab{border:1px solid var(--border);background:white;padding:8px 12px;border-radius:9px;font-size:12px;cursor:pointer;color:var(--muted)}
+.tabs .tab span{font-size:10px;margin-left:3px}.tabs .tab.active{background:#f0eeff;border-color:#c9c3ff;color:var(--primary);font-weight:700}
+.ipo-card{border:1px solid var(--border);border-radius:16px;padding:17px;margin-bottom:14px}
+.ipo-header{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.ipo-header h3{margin:5px 0 4px;font-size:16px}
+.ipo-type{font-size:10px;letter-spacing:.09em;font-weight:800}.mainboard-label{color:#5b4bdb}.sme-label{color:#9a6a00}
+.price-block{text-align:right}.price-block strong{font-size:18px;display:block}.price-block span{font-size:10px;color:var(--muted)}
+.application-table{margin-top:15px;border-top:1px solid var(--border)}
+.table-head,.account-row{display:grid;grid-template-columns:1fr 105px 90px;align-items:center;gap:10px}
+.table-head{padding:10px 0 7px;color:#9a9dab;font-size:9px;letter-spacing:.08em;font-weight:700}
+.account-row{padding:9px 0;border-top:1px solid #f0f0f4}.account-info{display:flex;align-items:center;gap:9px}.account-info .person{width:31px;height:31px;border-radius:9px;font-size:15px}.account-info strong{font-size:12px}.account-info small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.mini-stepper{display:flex;align-items:center;border:1px solid var(--border);border-radius:9px;width:max-content}.mini-stepper button{width:27px;height:27px;border:0;background:#fafaff;cursor:pointer}.mini-stepper span{width:31px;text-align:center;font-size:12px;font-weight:700}
+.row-amount{text-align:right;font-size:12px}.ipo-footer{display:flex;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}.cutoff{color:var(--primary);font-weight:600}
+.bulk-bar{position:sticky;bottom:12px;margin-top:17px;padding:13px 15px;background:#171923;color:white;border-radius:15px;display:flex;justify-content:space-between;align-items:center;gap:15px;box-shadow:0 10px 30px rgba(0,0,0,.16)}.bulk-bar div span{display:block;font-size:10px;color:#bfc1cc;margin-top:2px}.bulk-bar .primary{background:#6e5ee8;box-shadow:none}
+
+.manage-users-btn{border:1px solid var(--border);background:white;color:#4d5160;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer}.manage-users-btn:hover{background:#f8f7ff;border-color:#c9c3ff;color:var(--primary)}
+.user-actions{display:flex;gap:8px}.user-actions button{border:0;background:transparent;color:#777b89;font-size:11px;cursor:pointer}.user-actions button:hover{color:var(--primary)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form-field{display:flex;flex-direction:column;gap:6px}.form-field.full{grid-column:1/-1}.form-field label{font-size:11px;font-weight:700;color:#5c6070}.form-field input,.form-field select{height:42px;border:1px solid var(--border);border-radius:10px;padding:0 12px;outline:none;background:white}.form-field input:focus,.form-field select:focus{border-color:#aaa0ff;box-shadow:0 0 0 3px #f0eeff}.helper{font-size:10px;color:var(--muted);line-height:1.45}
+.user-list{display:flex;flex-direction:column;gap:9px;margin-top:15px}.user-item{display:flex;align-items:center;gap:10px;border:1px solid var(--border);padding:11px;border-radius:12px}.user-item .person{width:34px;height:34px}.user-item-main{flex:1}.user-item-main strong{font-size:12px}.user-item-main span{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+@media(max-width:650px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.profile span{display:none}.manage-users-btn{padding:8px}}
+
+.link-status{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:10px;font-weight:700}
+.link-status.success{color:var(--green)}.link-status.pending{color:var(--yellow)}.link-status.error{color:var(--red)}
+.link-action{border:1px solid #d8d3ff;background:#f7f5ff;color:var(--primary);padding:6px 8px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer}.link-action:hover{background:#eeeaff}
+.account-row.disabled{opacity:.62}.account-row.disabled .mini-stepper button{cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <div class="logo">IH</div>
+    <div><h1>IPO Hub</h1><p>One place for your IPO applications</p></div>
+  </div>
+  <div class="profile"><button class="manage-users-btn" onclick="openUserModal()">⚙ Manage Users</button><span>Personal workspace · <strong>Rajesh Prathi</strong></span><div class="avatar">RP</div></div>
+</header>
+
+<section class="hero">
+  <div class="hero-top">
+    <div>
+      <div class="eyebrow">IPO Hub · Today</div>
+      <h2>Apply to multiple IPOs in one place</h2>
+      <p>Select accounts and choose individual lots for each IPO. UPI mandates remain manual.</p>
+    </div>
+    <div class="badge">3 IPOs open today</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>MAINBOARD</span><strong>2 Open</strong></div>
+    <div class="stat"><span>SME</span><strong>1 Open</strong></div>
+    <div class="stat"><span>SELECTED APPLICATIONS</span><strong id="heroApplications">6</strong></div>
+    <div class="stat"><span>EST. TOTAL</span><strong id="heroTotal">₹46,200</strong></div>
+  </div>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+      <div>
+        <h3>Today's IPOs</h3>
+        <p class="sub" style="margin-bottom:0">Set lots independently for every account.</p>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">3 IPOs · 6 applications</div>
+    </div>
+
+    <div class="tabs" style="display:flex;gap:8px;margin-bottom:18px">
+      <button class="tab active" onclick="filterIPO('all',this)">All <span>3</span></button>
+      <button class="tab" onclick="filterIPO('mainboard',this)">Mainboard <span>2</span></button>
+      <button class="tab" onclick="filterIPO('sme',this)">SME <span>1</span></button>
+    </div>
+
+    <div id="ipoList">
+
+      <div class="ipo-card" data-type="mainboard">
+        <div class="ipo-header">
+          <div>
+            <div class="ipo-type mainboard-label">MAINBOARD</div>
+            <h3>ABC Technologies Limited</h3>
+            <p class="sub">₹366 – ₹385 · Lot size 20 · Closes 6 Oct</p>
+          </div>
+          <div class="price-block"><strong>₹385</strong><span>Cut-off</span></div>
+        </div>
+
+        <div class="application-table">
+          <div class="table-head"><span>ACCOUNT</span><span>LOTS</span><span>AMOUNT</span></div>
+
+          <div class="account-row" data-ipo="abc" data-price="385" data-lot="20" data-name="Dad">
+            <div class="account-info"><div class="person">👨</div><div><strong>Dad</strong><small>Upstox · dad@okaxis</small><span class="link-status success">● Linked successfully</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>1</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">₹7,700</strong>
+          </div>
+
+          <div class="account-row" data-ipo="abc" data-price="385" data-lot="20" data-name="Mom">
+            <div class="account-info"><div class="person">👩</div><div><strong>Mom</strong><small>Upstox · mom@ybl</small><span class="link-status success">● Linked successfully</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>2</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">₹15,400</strong>
+          </div>
+
+          <div class="account-row" data-ipo="abc" data-price="385" data-lot="20" data-name="Brother">
+            <div class="account-info"><div class="person">👦</div><div><strong>Brother</strong><small>Angel One · brother@ibl</small><span class="link-status pending">● Authorization pending</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>0</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">—</strong>
+          </div>
+        </div>
+
+        <div class="ipo-footer">
+          <span><strong>2 applications</strong> · ₹23,100</span>
+          <span class="cutoff">Cut-off price selected</span>
+        </div>
+      </div>
+
+      <div class="ipo-card" data-type="mainboard">
+        <div class="ipo-header">
+          <div>
+            <div class="ipo-type mainboard-label">MAINBOARD</div>
+            <h3>XYZ Consumer Products</h3>
+            <p class="sub">₹510 – ₹540 · Lot size 15 · Closes 6 Oct</p>
+          </div>
+          <div class="price-block"><strong>₹540</strong><span>Cut-off</span></div>
+        </div>
+
+        <div class="application-table">
+          <div class="table-head"><span>ACCOUNT</span><span>LOTS</span><span>AMOUNT</span></div>
+          <div class="account-row" data-ipo="xyz" data-price="540" data-lot="15" data-name="Dad">
+            <div class="account-info"><div class="person">👨</div><div><strong>Dad</strong><small>Upstox · dad@okaxis</small><span class="link-status success">● Linked successfully</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>1</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">₹8,100</strong>
+          </div>
+          <div class="account-row" data-ipo="xyz" data-price="540" data-lot="15" data-name="Brother">
+            <div class="account-info"><div class="person">👦</div><div><strong>Brother</strong><small>Angel One · brother@ibl</small><span class="link-status pending">● Authorization pending</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>1</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">₹8,100</strong>
+          </div>
+        </div>
+
+        <div class="ipo-footer">
+          <span><strong>2 applications</strong> · ₹16,200</span>
+          <span class="cutoff">Cut-off price selected</span>
+        </div>
+      </div>
+
+      <div class="ipo-card" data-type="sme">
+        <div class="ipo-header">
+          <div>
+            <div class="ipo-type sme-label">SME</div>
+            <h3>PQR Engineering SME</h3>
+            <p class="sub">₹120 – ₹126 · Lot size 1,000 · Closes 6 Oct</p>
+          </div>
+          <div class="price-block"><strong>₹126</strong><span>Cut-off</span></div>
+        </div>
+
+        <div class="application-table">
+          <div class="table-head"><span>ACCOUNT</span><span>LOTS</span><span>AMOUNT</span></div>
+          <div class="account-row" data-ipo="pqr" data-price="126" data-lot="1000" data-name="Mom">
+            <div class="account-info"><div class="person">👩</div><div><strong>Mom</strong><small>Upstox · mom@ybl</small><span class="link-status success">● Linked successfully</span></div></div>
+            <div class="mini-stepper"><button onclick="changeRowLot(this,-1)">−</button><span>1</span><button onclick="changeRowLot(this,1)">+</button></div>
+            <strong class="row-amount">₹1,26,000</strong>
+          </div>
+        </div>
+
+        <div class="ipo-footer">
+          <span><strong>1 application</strong> · ₹1,26,000</span>
+          <span class="cutoff">SME lot size applies</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bulk-bar">
+      <div><strong id="applicationCount">5 applications</strong><span id="applicationTotal">₹1,65,300 total</span></div>
+      <button class="primary" onclick="openBulkConfirm()">🚀 Submit selected applications</button>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h3>Your accounts</h3>
+    <p class="sub">Accounts you can use for IPO applications.</p>
+
+    <div class="accounts">
+      <div class="account selected">
+        <div class="check">✓</div><div class="person">👨</div>
+        <div class="account-main"><strong>Dad</strong><span>Upstox · Retail</span></div>
+      </div>
+      <div class="account selected">
+        <div class="check">✓</div><div class="person">👩</div>
+        <div class="account-main"><strong>Mom</strong><span>Upstox · Retail</span></div>
+      </div>
+      <div class="account selected">
+        <div class="check">✓</div><div class="person">👦</div>
+        <div class="account-main"><strong>Brother</strong><span>Angel One · Retail</span></div>
+      </div>
+      <div class="account">
+        <div class="check"></div><div class="person">👤</div>
+        <div class="account-main"><strong>Friend</strong><span>Upstox · Retail</span></div>
+      </div>
+    </div>
+
+    <hr style="border:0;border-top:1px solid var(--border);margin:22px 0">
+
+    <h3>Today's progress</h3>
+    <p class="sub">Track applications and mandates separately.</p>
+
+    <div class="status-list">
+      <div class="status"><div class="person">👨</div><div class="name"><strong>Dad · ABC IPO</strong><span>Application submitted</span></div><span class="pill pending">Mandate pending</span></div>
+      <div class="status"><div class="person">👩</div><div class="name"><strong>Mom · ABC IPO</strong><span>Application submitted</span></div><span class="pill approved">Approved</span></div>
+      <div class="status"><div class="person">👦</div><div class="name"><strong>Brother · XYZ IPO</strong><span>Application submitted</span></div><span class="pill pending">Mandate pending</span></div>
+    </div>
+
+    <div class="notice">
+      <strong>🔐 Manual mandate approval</strong><br>
+      IPO applications may be submitted from this dashboard. UPI mandates must always be reviewed and approved manually by the account holder.
+    </div>
+  </aside>
+</div>
+
+<footer style="max-width:1180px;margin:0 auto;padding:0 20px 28px;text-align:center;color:#8a8e9b;font-size:11px;">
+  IPO Hub · Built by <strong style="color:#666a78;">Rajesh Prathi</strong>
+</footer>
+
+
+<div class="modal-backdrop" id="userModal">
+  <div class="modal" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px">
+      <div>
+        <h3>Manage Users</h3>
+        <p>Add family members or friends whose demat account you are authorized to use for IPO applications.</p>
+      </div>
+      <button class="secondary" onclick="closeUserModal()" style="padding:7px 10px">✕</button>
+    </div>
+
+    <div class="user-list" id="userList">
+      <div class="user-item" data-user="Dad">
+        <div class="person">👨</div>
+        <div class="user-item-main"><strong>Dad</strong><span>Upstox · dad@okaxis</span><span class="link-status success">● Linked successfully</span></div>
+        <div class="user-actions"><button class="link-action" onclick="manageLink('Dad','linked')">Linked</button><button onclick="editUser('Dad')">Edit</button><button onclick="removeUser('Dad')">Remove</button></div>
+      </div>
+      <div class="user-item" data-user="Mom">
+        <div class="person">👩</div>
+        <div class="user-item-main"><strong>Mom</strong><span>Upstox · mom@ybl</span><span class="link-status success">● Linked successfully</span></div>
+        <div class="user-actions"><button class="link-action" onclick="manageLink('Mom','linked')">Linked</button><button onclick="editUser('Mom')">Edit</button><button onclick="removeUser('Mom')">Remove</button></div>
+      </div>
+      <div class="user-item" data-user="Brother">
+        <div class="person">👦</div>
+        <div class="user-item-main"><strong>Brother</strong><span>Angel One · brother@ibl</span><span class="link-status pending">● Authorization pending</span></div>
+        <div class="user-actions"><button class="link-action" onclick="manageLink('Brother','pending')">Connect</button><button onclick="editUser('Brother')">Edit</button><button onclick="removeUser('Brother')">Remove</button></div>
+      </div>
+    </div>
+
+    <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+
+    <h3 style="font-size:15px;margin-bottom:14px">Add user</h3>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>User name / name as per demat</label>
+        <input id="newName" placeholder="e.g. Rajesh Prathi">
+      </div>
+      <div class="form-field">
+        <label>Demat / broker</label>
+        <select id="newBroker">
+          <option value="">Select broker</option>
+          <option>Upstox</option>
+          <option>Groww</option>
+          <option>Angel One</option>
+          <option>Zerodha</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-field full">
+        <label>UPI ID for IPO mandate</label>
+        <input id="newUpi" placeholder="e.g. name@okaxis">
+        <div class="helper">Use the UPI ID belonging to the same person/bank account used for this IPO application. Never enter a UPI PIN here.</div>
+      </div>
+    </div>
+
+    <div class="notice" style="margin-top:15px">
+      <strong>🔐 Broker authorization</strong><br>
+      A new user starts as <strong>Authorization pending</strong>. After saving, use <strong>Connect</strong> to open the broker's official authorization flow. Once completed, the status becomes <strong>Linked successfully</strong> and the account can be used for applications. Passwords, OTPs and UPI PINs are never stored here.
+    </div>
+
+    <div class="modal-actions" style="margin-top:18px">
+      <button class="secondary" onclick="closeUserModal()">Close</button>
+      <button class="primary" onclick="saveUser()">＋ Add User</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3>Review your application</h3>
+    <p>You're about to submit IPO applications for the selected accounts.</p>
+    <div class="confirm-box" id="summary"></div>
+    <p>After submission, UPI mandates will be generated. <strong>You must approve each mandate manually in the respective UPI app.</strong></p>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="primary" onclick="submitDemo()">Confirm & Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function rowData(){
+  return [...document.querySelectorAll('.account-row')].map(row=>{
+    const lots = parseInt(row.querySelector('.mini-stepper span').textContent);
+    const price = Number(row.dataset.price), lot = Number(row.dataset.lot);
+    return {row, lots, amount: lots * price * lot, name: row.dataset.name, ipo: row.dataset.ipo};
+  }).filter(x=>x.lots>0);
+}
+function updateTotals(){
+  const rows=rowData();
+  const total=rows.reduce((s,x)=>s+x.amount,0);
+  document.getElementById('applicationCount').textContent=`${rows.length} application${rows.length!==1?'s':''}`;
+  document.getElementById('applicationTotal').textContent=`₹${total.toLocaleString('en-IN')} total`;
+  document.getElementById('heroApplications').textContent=rows.length;
+  document.getElementById('heroTotal').textContent=`₹${total.toLocaleString('en-IN')}`;
+}
+function changeRowLot(btn, delta){
+  const stepper=btn.parentElement;
+  const span=stepper.querySelector('span');
+  let value=Math.max(0,Math.min(10,parseInt(span.textContent)+delta));
+  span.textContent=value;
+  const row=btn.closest('.account-row');
+  const amount=row.querySelector('.row-amount');
+  const total=value*Number(row.dataset.price)*Number(row.dataset.lot);
+  amount.textContent=value ? '₹'+total.toLocaleString('en-IN') : '—';
+  
+
+function manageLink(name,status){
+  if(status==='linked'){
+    showToast(`${name}'s broker account is already linked.`);
+    return;
+  }
+  const ok=confirm(`Demo: start broker authorization for ${name}?\\n\\nIn the real app, this will open the broker's official authorization page. No broker password or OTP will be collected by IPO Hub.`);
+  if(!ok)return;
+  showToast(`Authorization flow started for ${name}.`);
+  setTimeout(()=>{
+    const item=[...document.querySelectorAll('#userList .user-item')].find(x=>x.dataset.user===name);
+    if(item){
+      const statusEl=item.querySelector('.link-status');
+      const btn=item.querySelector('.link-action');
+      statusEl.className='link-status success';
+      statusEl.textContent='● Linked successfully';
+      btn.textContent='Linked';
+      btn.onclick=()=>manageLink(name,'linked');
+    }
+  },1200);
+}
+function openUserModal(){document.getElementById('userModal').style.display='flex'}
+function closeUserModal(){document.getElementById('userModal').style.display='none'}
+function saveUser(){
+  const name=document.getElementById('newName').value.trim();
+  const broker=document.getElementById('newBroker').value;
+  const upi=document.getElementById('newUpi').value.trim();
+  if(!name || !broker || !upi){alert('Please enter the user name, broker/demat and UPI ID.');return}
+  if(!upi.includes('@')){alert('Please enter a valid-looking UPI ID, for example name@upi.');return}
+  const list=document.getElementById('userList');
+  const item=document.createElement('div');
+  item.className='user-item';
+  item.dataset.user=name;
+  item.innerHTML=`<div class="person">👤</div><div class="user-item-main"><strong>${escapeHtml(name)}</strong><span>${escapeHtml(broker)} · ${escapeHtml(upi)}</span><span class="link-status pending">● Authorization pending</span></div><div class="user-actions"><button class="link-action" onclick="manageLink('${escapeAttr(name)}','pending')">Connect</button><button onclick="editUser('${escapeAttr(name)}')">Edit</button><button onclick="removeUser('${escapeAttr(name)}')">Remove</button></div>`;
+  list.appendChild(item);
+  document.getElementById('newName').value='';
+  document.getElementById('newBroker').value='';
+  document.getElementById('newUpi').value='';
+  showToast(`${name} added to your IPO accounts.`);
+}
+function removeUser(name){
+  if(confirm(`Remove ${name} from your saved users?`)){
+    [...document.querySelectorAll('#userList .user-item')].find(x=>x.innerText.startsWith(name))?.remove();
+    showToast(`${name} removed.`);
+  }
+}
+function editUser(name){
+  alert(`Demo: edit ${name}'s profile here. In the real app this will open the same form with the saved details.`);
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function escapeAttr(s){return s.replace(/'/g,"\\'")}
+function showToast(message){
+  const toast=document.getElementById('toast');
+  toast.textContent='✓ '+message;toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',3000);
+}
+updateTotals();
+}
+function filterIPO(type,btn){
+  document.querySelectorAll('.tabs .tab').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.ipo-card').forEach(card=>{
+    card.style.display=(type==='all'||card.dataset.type===type)?'block':'none';
+  });
+}
+function openBulkConfirm(){
+  const rows=rowData();
+  if(!rows.length){alert('Select at least one application by setting its lot count above 0.');return;}
+  const grouped={};
+  rows.forEach(x=>{
+    const label=x.ipo==='abc'?'ABC Technologies':x.ipo==='xyz'?'XYZ Consumer Products':'PQR Engineering SME';
+    (grouped[label]??=[]).push(`${x.name}: ${x.lots} lot${x.lots>1?'s':''} (₹${x.amount.toLocaleString('en-IN')})`);
+  });
+  const lines=Object.entries(grouped).map(([ipo,items])=>`<strong>${ipo}</strong><br>${items.join('<br>')}`).join('<br><br>');
+  const modal=document.getElementById('modal');
+  document.getElementById('summary').innerHTML=lines;
+  modal.querySelector('h3').textContent='Review all applications';
+  modal.querySelector('p').textContent=`${rows.length} separate application${rows.length>1?'s':''} will be submitted across today's IPOs.`;
+  modal.style.display='flex';
+}
+function closeConfirm(){document.getElementById('modal').style.display='none'}
+function submitDemo(){
+  closeConfirm();
+  const toast=document.getElementById('toast');
+  toast.textContent='✓ Demo submission complete — UPI mandates are now pending manual approval.';
+  toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',4500);
+}
+
+
+function manageLink(name,status){
+  if(status==='linked'){
+    showToast(`${name}'s broker account is already linked.`);
+    return;
+  }
+  const ok=confirm(`Demo: start broker authorization for ${name}?\\n\\nIn the real app, this will open the broker's official authorization page. No broker password or OTP will be collected by IPO Hub.`);
+  if(!ok)return;
+  showToast(`Authorization flow started for ${name}.`);
+  setTimeout(()=>{
+    const item=[...document.querySelectorAll('#userList .user-item')].find(x=>x.dataset.user===name);
+    if(item){
+      const statusEl=item.querySelector('.link-status');
+      const btn=item.querySelector('.link-action');
+      statusEl.className='link-status success';
+      statusEl.textContent='● Linked successfully';
+      btn.textContent='Linked';
+      btn.onclick=()=>manageLink(name,'linked');
+    }
+  },1200);
+}
+function openUserModal(){document.getElementById('userModal').style.display='flex'}
+function closeUserModal(){document.getElementById('userModal').style.display='none'}
+function saveUser(){
+  const name=document.getElementById('newName').value.trim();
+  const broker=document.getElementById('newBroker').value;
+  const upi=document.getElementById('newUpi').value.trim();
+  if(!name || !broker || !upi){alert('Please enter the user name, broker/demat and UPI ID.');return}
+  if(!upi.includes('@')){alert('Please enter a valid-looking UPI ID, for example name@upi.');return}
+  const list=document.getElementById('userList');
+  const item=document.createElement('div');
+  item.className='user-item';
+  item.dataset.user=name;
+  item.innerHTML=`<div class="person">👤</div><div class="user-item-main"><strong>${escapeHtml(name)}</strong><span>${escapeHtml(broker)} · ${escapeHtml(upi)}</span><span class="link-status pending">● Authorization pending</span></div><div class="user-actions"><button class="link-action" onclick="manageLink('${escapeAttr(name)}','pending')">Connect</button><button onclick="editUser('${escapeAttr(name)}')">Edit</button><button onclick="removeUser('${escapeAttr(name)}')">Remove</button></div>`;
+  list.appendChild(item);
+  document.getElementById('newName').value='';
+  document.getElementById('newBroker').value='';
+  document.getElementById('newUpi').value='';
+  showToast(`${name} added to your IPO accounts.`);
+}
+function removeUser(name){
+  if(confirm(`Remove ${name} from your saved users?`)){
+    [...document.querySelectorAll('#userList .user-item')].find(x=>x.innerText.startsWith(name))?.remove();
+    showToast(`${name} removed.`);
+  }
+}
+function editUser(name){
+  alert(`Demo: edit ${name}'s profile here. In the real app this will open the same form with the saved details.`);
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function escapeAttr(s){return s.replace(/'/g,"\\'")}
+function showToast(message){
+  const toast=document.getElementById('toast');
+  toast.textContent='✓ '+message;toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',3000);
+}
+updateTotals();
+</script>
+</body>
+</html>

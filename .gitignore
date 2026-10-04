@@ -1,0 +1,11 @@
+# Local environments and runtime data
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.db
+.env
+
+# Editor files
+.idea/
+.vscode/

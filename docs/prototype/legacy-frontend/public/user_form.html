@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details Form</title>
+</head>
+<body>
+    <h1>Apply for IPO</h1>
+    <form id="userDetailsForm">
+        <label for="name">Name as per Demat:</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="broker">Broker Name:</label>
+        <select id="broker" name="broker" required>
+            <option value="broker1">Broker 1</option>
+            <option value="broker2">Broker 2</option>
+        </select>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required />
+
+        <button type="button" onclick="linkToBroker()">Link to Broker</button>
+    </form>
+
+    <p id="status">Status: Not Linked</p>
+
+    <script>
+        async function linkToBroker() {
+            const name = document.getElementById("name").value;
+            const broker = document.getElementById("broker").value;
+            const phone = document.getElementById("phone").value;
+
+            const response = await fetch("http://127.0.0.1:8000/api/link-broker", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, broker, phone }),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                document.getElementById("status").innerText = `Status: ${result.status}`;
+            } else {
+                alert(`Error: ${result.detail}`);
+            }
+        }
+    </script>
+</body>
+</html>
